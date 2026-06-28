@@ -223,8 +223,8 @@ def get_page_data(y1: float, m6: float, m3: float, m1: float) -> dict:
     if loss_filtered.empty:
         loss_fund_data, loss_fund_count = [], 0
     else:
-        loss_filtered = loss_filtered.sort_values(by="m1", ascending=True).head(20)
-        loss_fund_data = build_fund_list(loss_filtered, max_funds=20)
+        loss_filtered = loss_filtered.sort_values(by="m1", ascending=True).head(30)
+        loss_fund_data = build_fund_list(loss_filtered, max_funds=30)
         loss_fund_count = len(loss_fund_data)
 
     elapsed = time.time() - start_time
