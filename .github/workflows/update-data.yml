@@ -2,8 +2,8 @@ name: Daily Fund Data Update
 
 on:
   schedule:
-    # UTC 0:00 = 北京时间 8:00
-    - cron: '0 0 * * *'
+    # UTC 15:30 = 北京时间 23:30
+    - cron: '30 15 * * *'
   workflow_dispatch:  # 允许手动触发
 
 permissions:
