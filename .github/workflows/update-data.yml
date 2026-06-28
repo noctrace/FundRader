@@ -1,0 +1,32 @@
+name: Daily Fund Data Update
+
+on:
+  schedule:
+    # UTC 0:00 = 北京时间 8:00
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate fund data
+        run: python generate_data.py
+
+      - name: Commit and push updated data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'data: 自动更新基金数据'
+          file_pattern: 'data/*.json'

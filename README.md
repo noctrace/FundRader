@@ -2,72 +2,95 @@
 
 ## 项目简介
 
-Fund-Radar 是一个轻量化单机版 Web 应用，基于 URL 参数传参机制，实时联网抓取开放式基金数据，支持多维度筛选并可视化展示重仓股持仓与行业分布。
+Fund-Radar 是一个基于 GitHub Actions + GitHub Pages 的**纯静态基金筛选看板**。每天自动抓取开放式基金数据，通过 JSON 文件存储，浏览器端完成排序与 ECharts 可视化展示。
 
 ## 功能特性
 
-- ✅ **动态多指标筛选**：支持近1年 / 近6月 / 近3月 / 近1月四维度收益率交集过滤
+- ✅ **每日自动更新**：GitHub Actions 每天北京时间 8:00 自动抓取最新基金数据
+- ✅ **静态网站部署**：GitHub Pages 托管，无需服务器，零运维成本
 - ✅ **高低收益并存**：上方显示高收益基金（满足筛选条件），下方显示亏损基金（近1月 ≤ -15%）
 - ✅ **数据链路下钻**：基金 → 前十大重仓股 → 行业板块配置 全链路数据
 - ✅ **数据可视化**：每组基金配有独立的 ECharts 饼图，展示持仓权重与行业分布，点击表格行即可联动
 - ✅ **智能颜色标注**：收益率 ≥ 阈值显示绿色，< 0% 显示红色，一目了然
 - ✅ **自动排序**：亏损基金按近1月亏损降序排列（亏损最多靠前）
-- ✅ **URL 参数传参**：修改筛选条件后自动刷新 URL，便于分享与书签
 - ✅ **无限滚动加载**：表格支持滚动到底部自动加载更多数据
-- ✅ **现代化 UI**：Tailwind CSS 响应式双栏布局（7:5 宽比），多字段排序，动画效果
+- ✅ **客户端排序**：点击表头即可对任一维度排序，无需等待
+- ✅ **现代化 UI**：Tailwind CSS 响应式双栏布局（7:5 宽比），动画效果
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
 | Frontend | HTML5 + Tailwind CSS (CDN) + ECharts 5.5 (CDN) |
-| Backend / Data | Python 3.12 + AKShare + 6 线程并行请求 |
+| Data Pipeline | Python 3.12 + AKShare + GitHub Actions |
+| Hosting | GitHub Pages |
 
-## 快速开始
+## 访问地址
 
-### 1. 安装依赖
+- **GitHub Pages**: `https://noctrace.github.io/FundRader/`
+
+## 本地开发
+
+### 方式一：静态模式（推荐用于测试页面）
 
 ```bash
+git clone https://github.com/noctrace/FundRader.git
+cd FundRader
+
+# 先生成数据
 pip install -r requirements.txt
+python generate_data.py
+
+# 启动静态服务器
+python -m http.server 8080
+# 访问 http://localhost:8080
 ```
 
-### 2. 启动服务
+### 方式二：动态模式（用于调试数据抓取）
 
 ```bash
 python run.py
+# 访问 http://localhost:8080?y1=100&m6=60&m3=40&m1=25
 ```
 
-### 3. 访问应用
+## 固定筛选阈值
 
-```
-http://localhost:8080
-```
-
-带参数访问：
-
-```
-http://localhost:8080?y1=100&m6=60&m3=40&m1=25
-```
+| 参数 | 阈值 |
+|------|------|
+| 近1年收益率 | ≥ 100% |
+| 近6月收益率 | ≥ 60% |
+| 近3月收益率 | ≥ 40% |
+| 近1月收益率 | ≥ 25% |
 
 ## 文件结构
 
 ```
 fund-radar/
-├── README.md                          # 项目说明文档
-├── requirements.txt                   # Python 依赖清单
-├── LICENSE                            # GNU AGPL v3.0 开源协议
-├── run.py                             # 入口：HTTP 服务启动脚本
-├── fund_data.py                       # 数据层：AKShare 调用 + 筛选 + 持仓
-├── template.html                      # 视图层：HTML 模板（运行时注入数据）
+├── index.html                          # 静态主页（GitHub Pages 入口）
+├── generate_data.py                    # 数据生成脚本（GitHub Actions 调用）
+├── fund_data.py                        # 数据层：AKShare 调用 + 筛选 + 持仓
+├── run.py                              # 动态模式入口（本地开发用）
+├── template.html                       # 动态模式模板（本地开发用）
+├── requirements.txt                    # Python 依赖清单
+├── README.md                           # 项目说明文档
+├── LICENSE                             # GNU AGPL v3.0 开源协议
+├── .nojekyll                           # GitHub Pages 配置
+├── .github/
+│   └── workflows/
+│       └── update-data.yml             # 每日自动更新工作流
+├── data/                               # 自动生成的 JSON 数据
+│   ├── funds.json                      # 高收益基金（含持仓+行业）
+│   ├── loss_funds.json                 # 亏损基金（含持仓+行业）
+│   └── meta.json                       # 元数据（更新时间、数量）
 └── icon/
-    └── icon.jpg                       # 站点图标
+    └── icon.jpg                        # 站点图标
 ```
 
 ## 页面结构
 
 ```
 ┌──────────────────────────────────────────────┐
-│  搜索栏：近1年 ≥ [100]%  近6月 ≥ [60]%  ...  [开始查询] │
+│  搜索栏：固定阈值展示（100% / 60% / 40% / 25%）    │
 ├──────────────────────────────────────────────┤
 │  高收益基金（满足筛选条件）                      │
 │  ┌───────────────┬──────────────────────────┐ │
@@ -86,15 +109,6 @@ fund-radar/
 └──────────────────────────────────────────────┘
 ```
 
-## 参数说明
-
-| 参数 | 含义 | 默认值 | 说明 |
-|------|------|--------|------|
-| y1 | 近1年收益率阈值（%） | 100 | 筛选高收益基金 |
-| m6 | 近6月收益率阈值（%） | 60 | 筛选高收益基金 |
-| m3 | 近3月收益率阈值（%） | 40 | 筛选高收益基金 |
-| m1 | 近1月收益率阈值（%） | 25 | 筛选高收益基金 |
-
 ## 数据来源
 
 | 接口 | 说明 |
@@ -103,15 +117,14 @@ fund-radar/
 | `fund_portfolio_hold_em` | 基金前十大重仓股 |
 | `fund_portfolio_industry_allocation_em` | 基金行业板块配置 |
 
-所有数据来自 AKShare（东方财富），实时联网获取。
+所有数据来自 AKShare（东方财富），由 GitHub Actions 每天自动抓取。
 
 ## 注意事项
 
-- 数据抓取约需 15-20 秒，请耐心等待页面加载
-- 每组基金默认展示前 30 只（高收益）或 20 只（亏损）的持仓详情
-- 使用 6 线程并行获取持仓数据以提升加载速度
+- 数据由 GitHub Actions 每天 UTC 0:00（北京 8:00）自动更新
+- 页面首次加载需下载 JSON 数据（约 200KB），后续浏览器缓存加速
 - 基金持仓数据来自最新季度报告，通常滞后 1-2 个月
-- 请勿频繁刷新，避免触发 AKShare 接口频率限制
+- 如需修改筛选阈值，请编辑 `generate_data.py` 中的固定阈值常量
 
 ## 开发阶段
 
@@ -122,3 +135,4 @@ fund-radar/
 | Milestone 3 | 前端响应式 UI 与 ECharts 图表 | ✅ 完成 |
 | Milestone 4 | 全链路打通与 URL 传参联动 | ✅ 完成 |
 | 优化 | 无限滚动 + 双区域 + 颜色标注 + 排序 | ✅ 完成 |
+| 静态化 | GitHub Actions + Pages 静态网站改造 | ✅ 完成 |

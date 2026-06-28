@@ -1,0 +1,11 @@
+{
+  "update_time": "2026-06-28 19:58:21",
+  "thresholds": {
+    "y1": 100,
+    "m6": 60,
+    "m3": 40,
+    "m1": 25
+  },
+  "fund_count": 30,
+  "loss_fund_count": 20
+}
