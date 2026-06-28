@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -543,3 +542,19 @@
                 case 'name': valA = a.name; valB = b.name; break;
                 case 'y1': valA = a.y1; valB = b.y1; break;
                 case 'm6': valA = a.m6; valB = b.m6; break;
+                case 'm3': valA = a.m3; valB = b.m3; break;
+                case 'm1': valA = a.m1; valB = b.m1; break;
+                default: return 0;
+            }}
+            if (typeof valA === 'string') {{ return lossSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA); }}
+            return lossSortAsc ? valA - valB : valB - valA;
+        }});
+
+        const tbody = document.getElementById('lossFundTableBody');
+        tbody.innerHTML = '';
+        lossDisplayedCount = 0;
+        loadMoreLossFunds();
+    }}
+    </script>
+</body>
+</html>
