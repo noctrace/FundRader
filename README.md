@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ### 2. 启动服务
 
 ```bash
-python app_server.py
+python run.py
 ```
 
 ### 3. 访问应用
@@ -55,13 +55,12 @@ http://localhost:8080?y1=100&m6=60&m3=40&m1=25
 fund-radar/
 ├── README.md                          # 项目说明文档
 ├── requirements.txt                   # Python 依赖清单
-├── app_server.py                      # 全链路生产级服务（核心入口）
-├── icon/
-│   └── icon.jpg                       # 站点图标
-├── milestone1_fund_screener.py        # 阶段一：数据验证与命令行筛选原型
-├── milestone2_portfolio_deep.py       # 阶段二：持仓数据联调原型
-├── milestone3_ui_template.html        # 阶段三：前端 UI 模板（Mock 数据）
-└── start_server.py                    # 阶段三：本地 HTTP 预览服务器
+├── LICENSE                            # GNU AGPL v3.0 开源协议
+├── run.py                             # 入口：HTTP 服务启动脚本
+├── fund_data.py                       # 数据层：AKShare 调用 + 筛选 + 持仓
+├── template.html                      # 视图层：HTML 模板（运行时注入数据）
+└── icon/
+    └── icon.jpg                       # 站点图标
 ```
 
 ## 页面结构
