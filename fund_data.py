@@ -106,6 +106,17 @@ def fetch_fund_industry(fund_code: str, year: str = "2026") -> list:
         return []
 
 
+def safe_float(val, default=0.0):
+    """将值转为 float，NaN/Inf 替换为 default。"""
+    try:
+        result = float(val)
+        if pd.isna(result) or result in (float('inf'), float('-inf')):
+            return default
+        return result
+    except (ValueError, TypeError):
+        return default
+
+
 def fetch_single_fund_data(row: pd.Series) -> dict:
     """获取单只基金的完整数据（用于并行处理）。"""
     code = get_fund_code(row)
@@ -117,13 +128,19 @@ def fetch_single_fund_data(row: pd.Series) -> dict:
     holdings, report_date = fetch_fund_holdings(code)
     industry = fetch_fund_industry(code)
 
+    # 清洗 holdings 中的 NaN 值
+    for h in holdings:
+        h["ratio"] = safe_float(h.get("ratio", 0))
+    for ind in industry:
+        ind["ratio"] = safe_float(ind.get("ratio", 0))
+
     return {
         "code": code,
         "name": name,
-        "y1": float(row.get("y1", 0)),
-        "m6": float(row.get("m6", 0)),
-        "m3": float(row.get("m3", 0)),
-        "m1": float(row.get("m1", 0)),
+        "y1": safe_float(row.get("y1", 0)),
+        "m6": safe_float(row.get("m6", 0)),
+        "m3": safe_float(row.get("m3", 0)),
+        "m1": safe_float(row.get("m1", 0)),
         "holdings": holdings,
         "industry": industry,
         "report_date": report_date

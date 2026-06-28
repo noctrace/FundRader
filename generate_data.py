@@ -6,6 +6,7 @@ Fund-Radar 数据生成脚本
 """
 
 import json
+import math
 import os
 import sys
 import io
@@ -24,6 +25,19 @@ DATA_DIR = BASE_DIR / "data"
 Y1, M6, M3, M1 = 100, 60, 40, 25
 
 
+def sanitize(obj):
+    """递归清洗 NaN/Inf 值为 0，确保生成合法 JSON。"""
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return 0.0
+        return obj
+    elif isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize(item) for item in obj]
+    return obj
+
+
 def main():
     print(f"{'='*60}")
     print(f"  Fund-Radar 静态数据生成")
@@ -40,13 +54,13 @@ def main():
     # 写入高收益基金数据
     funds_path = DATA_DIR / "funds.json"
     with open(funds_path, "w", encoding="utf-8") as f:
-        json.dump(data["fund_data"], f, ensure_ascii=False, indent=2)
+        json.dump(sanitize(data["fund_data"]), f, ensure_ascii=False, indent=2, allow_nan=False)
     print(f"[写入] {funds_path} ({data['fund_count']} 条)")
 
     # 写入亏损基金数据
     loss_path = DATA_DIR / "loss_funds.json"
     with open(loss_path, "w", encoding="utf-8") as f:
-        json.dump(data["loss_fund_data"], f, ensure_ascii=False, indent=2)
+        json.dump(sanitize(data["loss_fund_data"]), f, ensure_ascii=False, indent=2, allow_nan=False)
     print(f"[写入] {loss_path} ({data['loss_fund_count']} 条)")
 
     # 写入元数据
